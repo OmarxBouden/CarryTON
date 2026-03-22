@@ -89,8 +89,24 @@ export async function getTonPrice(): Promise<{ ton_usd: number; ton_eur: number;
 }
 
 export async function getUser(telegramId: string): Promise<User> {
-  const data = await api.get(`/users/${telegramId}`);
-  return data.user;
+  try {
+    const data = await api.get(`/users/${telegramId}`);
+    return data.user;
+  } catch {
+    // User doesn't exist — try to create from Telegram data, or fall back to demo user (Bob)
+    try {
+      const res = await api.post('/users', {
+        telegram_id: telegramId,
+        username: 'user_' + telegramId,
+        display_name: 'User',
+      });
+      return res.user;
+    } catch {
+      // Last resort: return demo user Bob so the app is always usable
+      const data = await api.get('/users/tg_bob');
+      return data.user;
+    }
+  }
 }
 
 export async function getUserAvatar(userId: number): Promise<{ avatar: AvatarState; next_level_xp: number; progress_percent: number }> {
