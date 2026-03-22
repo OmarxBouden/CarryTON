@@ -11,7 +11,7 @@
  */
 
 import db from '../db';
-import { AIMatchResult, AIRouteOption, AIHop } from '../../../shared/types';
+import { AIMatchResult, AIRouteOption, AIHop } from '../../shared/types';
 import { callLLM } from './llm-provider';
 
 // ═══════════════════════════════════════════════════════════════

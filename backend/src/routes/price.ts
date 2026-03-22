@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PriceDisplay } from '../../../shared/types';
+import { PriceDisplay } from '../../shared/types';
 
 const router = Router();
 

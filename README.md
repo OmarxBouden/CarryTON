@@ -84,8 +84,10 @@ Then open http://localhost:3000 in your browser.
 
 - Telegram Bot: @CarryTON_bot
 - Mini App: [deployed URL]
-- Token: **Blockixchainix (BXC)** on TON testnet
+- Token: **Blockixchainix (BXC)** on TON testnet — [read the lore](./BXC.md)
 - Testnet explorer: [tonviewer.com](https://testnet.tonviewer.com)
+
+> *Fun fact: BXC is the only token forged in the Cavern of Smart Contracts by an ancient Alpine token who just wanted people to stop getting scammed on deliveries. [Full origin story here.](./BXC.md)*
 
 ## Monetization
 

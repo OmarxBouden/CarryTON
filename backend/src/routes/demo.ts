@@ -9,10 +9,13 @@ const router = Router();
 // GET /demo/reset — re-run the seed script to reset all data
 router.get('/reset', (_req: Request, res: Response) => {
   try {
-    execSync('npx ts-node src/seed.ts', {
-      cwd: path.resolve(__dirname, '../..'),
-      stdio: 'pipe',
-    });
+    const root = process.cwd();
+    // Try compiled JS first (production), fall back to ts-node (dev)
+    try {
+      execSync('node dist/src/seed.js', { cwd: root, stdio: 'pipe' });
+    } catch {
+      execSync('npx ts-node src/seed.ts', { cwd: root, stdio: 'pipe' });
+    }
     return res.json({ status: 'ok', message: 'Database reset to seed state' });
   } catch (err) {
     console.error('[demo/reset]', err);

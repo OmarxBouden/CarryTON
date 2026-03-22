@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import db from '../db';
-import { XP_REWARDS } from '../../../shared/types';
+import { XP_REWARDS } from '../../shared/types';
 import { notifyUser } from '../services/notify';
 import { callLLM } from '../services/llm-provider';
 

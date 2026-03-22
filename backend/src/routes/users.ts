@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import db from '../db';
-import { AVATAR_LEVELS, AvatarState } from '../../../shared/types';
+import { AVATAR_LEVELS, AvatarState } from '../../shared/types';
 
 const router = Router();
 

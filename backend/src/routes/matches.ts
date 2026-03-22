@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import db from '../db';
 import { findMatches } from '../services/matching';
 import { convertTonToFiat } from './price';
-import { XP_REWARDS } from '../../../shared/types';
+import { XP_REWARDS } from '../../shared/types';
 import { createEscrow, confirmDelivery } from '../services/escrow';
 import { notifyUser } from '../services/notify';
 
