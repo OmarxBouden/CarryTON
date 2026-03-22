@@ -1,6 +1,14 @@
 import 'dotenv/config';
-import './db';
+import db from './db';
 import express, { NextFunction, Request, Response } from 'express';
+
+// Auto-seed if database is empty (handles Railway ephemeral filesystem)
+const userCount = (db.prepare('SELECT COUNT(*) as c FROM users').get() as any).c;
+if (userCount === 0) {
+  console.log('[startup] Empty database detected — seeding demo data...');
+  require('./seed');
+  console.log('[startup] Seed complete.');
+}
 import cors from 'cors';
 import usersRouter from './routes/users';
 import tripsRouter from './routes/trips';
