@@ -1,0 +1,253 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+/* =================================================================
+   CARRYTON — Design System
+   ================================================================= */
+
+:root {
+  --bg:          #F0F2F5;
+  --bg-gradient:  linear-gradient(180deg, #E8F4FD 0%, #F0F2F5 40%);
+  --surface:     #FFFFFF;
+  --surface-2:   #F7F8FA;
+  --glass:       rgba(255,255,255,.72);
+  --glass-border: rgba(255,255,255,.5);
+
+  --accent:      #2AABEE;
+  --accent-dark: #1E96D1;
+  --accent-glow: rgba(42,171,238,.15);
+  --accent-bg:   #E8F7FE;
+  --coral:       #FF6B6B;
+  --coral-bg:    #FFF0F0;
+  --amber:       #FFB547;
+  --amber-bg:    #FFF8EC;
+  --mint:        #34D399;
+  --mint-bg:     #ECFDF5;
+  --violet:      #8B5CF6;
+  --violet-bg:   #F3F0FF;
+
+  --text-1:      #0B1120;
+  --text-2:      #4B5563;
+  --text-3:      #9CA3AF;
+
+  --border:      rgba(0,0,0,.06);
+  --border-2:    rgba(0,0,0,.03);
+
+  --shadow-sm:   0 1px 2px rgba(0,0,0,.04), 0 1px 4px rgba(0,0,0,.03);
+  --shadow-md:   0 4px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-glow: 0 0 20px rgba(42,171,238,.2), 0 0 4px rgba(42,171,238,.1);
+}
+
+.dark {
+  --bg:          #0A0E1A;
+  --bg-gradient:  linear-gradient(180deg, #0F1628 0%, #0A0E1A 40%);
+  --surface:     #141925;
+  --surface-2:   #1A2035;
+  --glass:       rgba(20,25,37,.82);
+  --glass-border: rgba(255,255,255,.06);
+
+  --accent-glow: rgba(42,171,238,.12);
+  --accent-bg:   rgba(42,171,238,.1);
+  --coral-bg:    rgba(255,107,107,.08);
+  --amber-bg:    rgba(255,181,71,.08);
+  --mint-bg:     rgba(52,211,153,.08);
+  --violet-bg:   rgba(139,92,246,.08);
+
+  --text-1:      #F1F5F9;
+  --text-2:      #8B95A9;
+  --text-3:      #4B5675;
+
+  --border:      rgba(255,255,255,.06);
+  --border-2:    rgba(255,255,255,.03);
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.4);
+  --shadow-md:   0 4px 12px rgba(0,0,0,.5);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,.6);
+  --shadow-glow: 0 0 24px rgba(42,171,238,.15), 0 0 6px rgba(42,171,238,.08);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text-1);
+  --font-sans: var(--font-jakarta), 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+  line-height: 1.5;
+}
+
+/* =================================================================
+   COMPONENT CLASSES — @utility for Tailwind v4 compatibility
+   ================================================================= */
+
+@utility t-display { font-weight: 800; letter-spacing: -0.025em; }
+@utility t-title   { font-weight: 700; letter-spacing: -0.015em; }
+@utility t-body    { font-weight: 500; }
+
+@utility card {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  transition: transform 150ms cubic-bezier(.4,0,.2,1), box-shadow 150ms ease;
+  &:active { transform: scale(.985); }
+}
+
+@utility card-solid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+@utility tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  padding: 14px 24px;
+  cursor: pointer;
+  user-select: none;
+  border: none;
+  transition: all 150ms cubic-bezier(.4,0,.2,1);
+  &:active { transform: scale(.97); }
+  &:disabled { opacity: .4; pointer-events: none; }
+}
+
+@utility btn-accent {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(42,171,238,.3);
+  &:hover { background: var(--accent-dark); box-shadow: 0 6px 20px rgba(42,171,238,.35); }
+}
+
+@utility btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1.5px solid var(--border);
+  padding: 12px 20px;
+  &:hover { background: var(--surface-2); }
+}
+
+@utility pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+}
+
+/* =================================================================
+   ANIMATIONS
+   ================================================================= */
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@utility anim-card {
+  animation: cardIn 350ms cubic-bezier(.25,.8,.25,1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@utility anim-in {
+  animation: fadeUp 300ms cubic-bezier(.25,.8,.25,1);
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@utility animate-shimmer {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(1); opacity: .6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@utility anim-pulse {
+  animation: pulseRing 1.8s cubic-bezier(0,0,.2,1) infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@utility anim-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes dashDraw {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+@utility anim-dash {
+  stroke-dasharray: 200;
+  animation: dashDraw 800ms cubic-bezier(.4,0,.2,1) forwards;
+}
+
+@keyframes slideDown {
+  from { transform: translate(-50%, -120%); opacity: 0; }
+  to   { transform: translate(-50%, 0); opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translate(-50%, 0); opacity: 1; }
+  to   { transform: translate(-50%, -120%); opacity: 0; }
+}
+@utility animate-slide-down {
+  animation: slideDown 350ms cubic-bezier(.34,1.56,.64,1);
+}
+@utility animate-slide-up {
+  animation: slideUp 250ms ease-in forwards;
+}
+
+@keyframes celebrate {
+  0%  { transform: scale(.3); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100%{ transform: scale(1); }
+}
+@utility anim-celebrate {
+  animation: celebrate 500ms cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(42,171,238,.3); }
+  50%      { box-shadow: 0 4px 24px rgba(42,171,238,.45); }
+}
+@utility anim-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
