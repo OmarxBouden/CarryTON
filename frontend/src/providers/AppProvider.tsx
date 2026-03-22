@@ -20,7 +20,7 @@ const AppContext = createContext<AppContextValue>({
   user: null,
   loading: true,
   tonPrice: { ton_usd: 2.80, ton_eur: 2.60, ton_chf: 2.50 },
-  formatTon: (amount) => `${amount.toFixed(2)} TON`,
+  formatTon: (amount) => `${amount.toFixed(2)} BXC`,
   refreshUser: async () => {},
 });
 

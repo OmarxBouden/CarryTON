@@ -59,7 +59,7 @@ export function MatchCard({ match, price, index, onAccept, accepting }: MatchCar
                 </p>
               </div>
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                {hop.fee_ton} TON
+                {hop.fee_ton} BXC
               </span>
             </div>
           ))}
@@ -128,7 +128,7 @@ export function MatchCard({ match, price, index, onAccept, accepting }: MatchCar
         >
           {accepting
             ? 'Processing…'
-            : `Accept & pay ${match.total_fee_ton} TON${price ? ` (~${price.fiat_symbol} ${price.fiat_amount.toFixed(2)})` : ''}`}
+            : `Accept & pay ${match.total_fee_ton} BXC${price ? ` (~${price.fiat_symbol} ${price.fiat_amount.toFixed(2)})` : ''}`}
         </button>
       </div>
     </div>

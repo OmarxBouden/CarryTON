@@ -11,31 +11,78 @@
 
 import OpenAI from 'openai';
 
-type Provider = 'groq' | 'ollama' | 'anthropic';
+type Provider = 'groq' | 'grok' | 'ollama' | 'anthropic';
 
 function getProvider(): Provider {
   const p = (process.env.LLM_PROVIDER || 'groq').toLowerCase().trim();
   if (p === 'anthropic' || p === 'claude') return 'anthropic';
   if (p === 'ollama' || p === 'local') return 'ollama';
+  if (p === 'grok' || p === 'xai') return 'grok';
   return 'groq';
 }
 
 // ── Lazy-initialized clients ──
 
-let groqClient: OpenAI | null = null;
+// Groq key rotation: set GROQ_API_KEY to a single key, or
+// GROQ_API_KEYS to a comma-separated list for round-robin.
+let groqClients: OpenAI[] = [];
+let groqKeyIndex = 0;
+
 function getGroqClient(): OpenAI {
-  if (!groqClient) {
-    const key = process.env.GROQ_API_KEY;
-    if (!key || key === 'your_groq_key') {
-      throw new Error('[LLM] GROQ_API_KEY not set. Get a free key at https://console.groq.com');
+  if (groqClients.length === 0) {
+    const multiKeys = process.env.GROQ_API_KEYS;
+    const singleKey = process.env.GROQ_API_KEY;
+    const keys = multiKeys
+      ? multiKeys.split(',').map((k) => k.trim()).filter(Boolean)
+      : singleKey && singleKey !== 'your_groq_key'
+        ? [singleKey]
+        : [];
+
+    if (keys.length === 0) {
+      throw new Error('[LLM] No Groq API key set. Set GROQ_API_KEY or GROQ_API_KEYS (comma-separated). Free at https://console.groq.com');
     }
-    groqClient = new OpenAI({
+
+    groqClients = keys.map((key) => new OpenAI({
       apiKey: key,
       baseURL: 'https://api.groq.com/openai/v1',
-    });
-    console.log('[LLM] Groq provider initialized (llama-3.3-70b-versatile)');
+    }));
+    console.log(`[LLM] Groq provider initialized with ${keys.length} key(s) (llama-3.3-70b-versatile)`);
   }
-  return groqClient;
+
+  // Round-robin across keys
+  const client = groqClients[groqKeyIndex % groqClients.length];
+  groqKeyIndex++;
+  return client;
+}
+
+// xAI/Grok key rotation: set GROK_API_KEY or GROK_API_KEYS (comma-separated)
+let grokClients: OpenAI[] = [];
+let grokKeyIndex = 0;
+
+function getGrokClient(): OpenAI {
+  if (grokClients.length === 0) {
+    const multiKeys = process.env.GROK_API_KEYS;
+    const singleKey = process.env.GROK_API_KEY;
+    const keys = multiKeys
+      ? multiKeys.split(',').map((k) => k.trim()).filter(Boolean)
+      : singleKey && singleKey !== 'your_grok_key'
+        ? [singleKey]
+        : [];
+
+    if (keys.length === 0) {
+      throw new Error('[LLM] No Grok API key set. Set GROK_API_KEY or GROK_API_KEYS (comma-separated). Get keys at https://console.x.ai');
+    }
+
+    grokClients = keys.map((key) => new OpenAI({
+      apiKey: key,
+      baseURL: 'https://api.x.ai/v1',
+    }));
+    console.log(`[LLM] Grok/xAI provider initialized with ${keys.length} key(s) (grok-3-mini)`);
+  }
+
+  const client = grokClients[grokKeyIndex % grokClients.length];
+  grokKeyIndex++;
+  return client;
 }
 
 let ollamaClient: OpenAI | null = null;
@@ -79,11 +126,17 @@ export async function callLLM(systemPrompt: string, userPrompt: string): Promise
       return await callAnthropic(systemPrompt, userPrompt);
     }
 
-    // Groq and Ollama both use OpenAI-compatible API
-    const client = provider === 'groq' ? getGroqClient() : getOllamaClient();
+    // Groq, Grok, and Ollama all use OpenAI-compatible API
+    const client = provider === 'groq'
+      ? getGroqClient()
+      : provider === 'grok'
+        ? getGrokClient()
+        : getOllamaClient();
     const model = provider === 'groq'
       ? 'llama-3.3-70b-versatile'
-      : (process.env.OLLAMA_MODEL || 'llama3.1');
+      : provider === 'grok'
+        ? (process.env.GROK_MODEL || 'grok-3-mini')
+        : (process.env.OLLAMA_MODEL || 'llama3.1');
 
     const response = await client.chat.completions.create({
       model,
@@ -106,6 +159,8 @@ export async function callLLM(systemPrompt: string, userPrompt: string): Promise
 
     if (provider === 'groq') {
       console.error(`[LLM/Groq] Error: ${msg}`);
+    } else if (provider === 'grok') {
+      console.error(`[LLM/Grok] Error: ${msg}`);
     } else if (provider === 'ollama') {
       console.error(`[LLM/Ollama] Error: ${msg}. Is Ollama running? (ollama serve)`);
     } else {
@@ -156,8 +211,10 @@ export function getLLMStatus(): { provider: string; model: string } {
   const provider = getProvider();
   const model = provider === 'groq'
     ? 'llama-3.3-70b-versatile'
-    : provider === 'ollama'
-      ? (process.env.OLLAMA_MODEL || 'llama3.1')
-      : 'claude-sonnet-4-6';
+    : provider === 'grok'
+      ? (process.env.GROK_MODEL || 'grok-3-mini')
+      : provider === 'ollama'
+        ? (process.env.OLLAMA_MODEL || 'llama3.1')
+        : 'claude-sonnet-4-6';
   return { provider, model };
 }

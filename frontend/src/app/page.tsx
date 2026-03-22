@@ -88,7 +88,7 @@ function TripCard({ trip, onClick, index }: { trip: Trip; onClick: () => void; i
         {trip.price_ton != null ? (
           <div className="flex items-baseline gap-1 flex-shrink-0 pl-2">
             <span className="t-display text-[20px]" style={{ color: 'var(--accent)' }}>{trip.price_ton}</span>
-            <span className="text-[11px] font-bold" style={{ color: 'var(--text-3)' }}>TON</span>
+            <span className="text-[11px] font-bold" style={{ color: 'var(--text-3)' }}>BXC</span>
           </div>
         ) : (
           <div className="tag flex-shrink-0" style={{ background: 'var(--violet-bg)', color: 'var(--violet)' }}>
@@ -133,7 +133,7 @@ function RequestCard({ req, onClick, index }: { req: DeliveryRequest; onClick: (
         {req.budget_ton != null && (
           <div className="flex items-baseline gap-1 flex-shrink-0 pl-2">
             <span className="t-display text-[18px]" style={{ color: 'var(--mint)' }}>{req.budget_ton}</span>
-            <span className="text-[11px] font-bold" style={{ color: 'var(--text-3)' }}>TON</span>
+            <span className="text-[11px] font-bold" style={{ color: 'var(--text-3)' }}>BXC</span>
           </div>
         )}
       </div>

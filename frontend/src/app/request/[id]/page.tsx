@@ -74,7 +74,7 @@ export default function RequestPage({ params }: { params: Promise<{ id: string }
           {request.budget_ton != null && (
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Budget</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">{request.budget_ton} TON</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{request.budget_ton} BXC</span>
             </div>
           )}
           {request.deadline && (

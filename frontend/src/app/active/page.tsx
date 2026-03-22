@@ -19,23 +19,23 @@ export default function ActivePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch all matches and filter to active ones
+    // Fetch all active matches in parallel
     async function fetchJobs() {
       try {
-        // Get matches by checking requests for the current user
-        const res = await fetch(`${BASE_URL}/requests?status=matched`);
-        const data = await res.json();
-        const requests = data.requests || [];
+        const [matchedRes, transitRes, deliveredRes] = await Promise.all([
+          fetch(`${BASE_URL}/requests?status=matched`),
+          fetch(`${BASE_URL}/requests?status=in_transit`),
+          fetch(`${BASE_URL}/requests?status=delivered`),
+        ]);
+        const [data, data2, data3] = await Promise.all([
+          matchedRes.json(), transitRes.json(), deliveredRes.json(),
+        ]);
 
-        const res2 = await fetch(`${BASE_URL}/requests?status=in_transit`);
-        const data2 = await res2.json();
-        const inTransit = data2.requests || [];
-
-        const res3 = await fetch(`${BASE_URL}/requests?status=delivered`);
-        const data3 = await res3.json();
-        const delivered = data3.requests || [];
-
-        const allRequests = [...requests, ...inTransit, ...delivered];
+        const allRequests = [
+          ...(data.requests || []),
+          ...(data2.requests || []),
+          ...(data3.requests || []),
+        ];
 
         // For each request, try to get the match via by-request endpoint
         const matchPromises = allRequests.map(async (req: { id: number }) => {

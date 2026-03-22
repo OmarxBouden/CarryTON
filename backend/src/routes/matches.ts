@@ -56,25 +56,29 @@ router.post('/find', async (req: Request, res: Response) => {
       const protocolFee = Math.round(topMatch.total_fee_ton * protocolFeeBps / 10000 * 100) / 100;
       const carrierPayout = Math.round((topMatch.total_fee_ton - protocolFee) * 100) / 100;
 
-      const insertResult = db.prepare(`
-        INSERT INTO matches (request_id, status, total_fee_ton, protocol_fee_ton, carrier_payout_ton, ai_reasoning)
-        VALUES (?, 'proposed', ?, ?, ?, ?)
-      `).run(request_id, topMatch.total_fee_ton, protocolFee, carrierPayout, topMatch.reasoning || 'AI-matched route.');
+      // Insert match + hops in a transaction
+      const insertMatchAndHops = db.transaction(() => {
+        const insertResult = db.prepare(`
+          INSERT INTO matches (request_id, status, total_fee_ton, protocol_fee_ton, carrier_payout_ton, ai_reasoning)
+          VALUES (?, 'proposed', ?, ?, ?, ?)
+        `).run(request_id, topMatch.total_fee_ton, protocolFee, carrierPayout, topMatch.reasoning || 'AI-matched route.');
 
-      const matchId = insertResult.lastInsertRowid as number;
+        const newMatchId = insertResult.lastInsertRowid as number;
 
-      // Insert match hops
-      const insertHop = db.prepare(`
-        INSERT INTO match_hops (match_id, hop_order, trip_id, carrier_id, from_city, to_city, departure_time, fee_ton)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `);
+        const insertHop = db.prepare(`
+          INSERT INTO match_hops (match_id, hop_order, trip_id, carrier_id, from_city, to_city, departure_time, fee_ton)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
 
-      for (let i = 0; i < topMatch.hops.length; i++) {
-        const hop = topMatch.hops[i];
-        insertHop.run(matchId, i + 1, hop.trip_id, hop.carrier_id, hop.from, hop.to, hop.departure_time, hop.fee_ton);
-      }
+        for (let i = 0; i < topMatch.hops.length; i++) {
+          const hop = topMatch.hops[i];
+          insertHop.run(newMatchId, i + 1, hop.trip_id, hop.carrier_id, hop.from, hop.to, hop.departure_time, hop.fee_ton);
+        }
 
-      // Attach match_id to the response for the top match
+        return newMatchId;
+      });
+
+      const matchId = insertMatchAndHops();
       (result.matches[0] as any).match_id = matchId;
     }
 
@@ -98,17 +102,7 @@ router.post('/:id/accept', (req: Request, res: Response) => {
   const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(matchId) as any;
   if (!match) return res.status(404).json({ error: 'Match not found' });
 
-  // Update match status
-  db.prepare(`UPDATE matches SET status = 'accepted' WHERE id = ?`).run(matchId);
-
-  // Update request status
-  db.prepare(`UPDATE requests SET status = 'matched' WHERE id = ?`).run(match.request_id);
-
-  // Update related trip(s) status
   const hops = db.prepare(`SELECT * FROM match_hops WHERE match_id = ? ORDER BY hop_order`).all(matchId) as any[];
-  for (const hop of hops) {
-    db.prepare(`UPDATE trips SET status = 'matched' WHERE id = ?`).run(hop.trip_id);
-  }
 
   // Create mock escrow
   const request = db.prepare(`SELECT r.*, u.wallet_address as requester_wallet FROM requests r JOIN users u ON r.requester_id = u.id WHERE r.id = ?`).get(match.request_id) as any;
@@ -120,8 +114,15 @@ router.post('/:id/accept', (req: Request, res: Response) => {
     match.total_fee_ton
   );
 
-  // Store escrow ID in match record
-  db.prepare(`UPDATE matches SET escrow_address = ? WHERE id = ?`).run(escrow.id, matchId);
+  // Wrap all status updates in a transaction
+  const acceptTransaction = db.transaction(() => {
+    db.prepare(`UPDATE matches SET status = 'accepted', escrow_address = ? WHERE id = ?`).run(escrow.id, matchId);
+    db.prepare(`UPDATE requests SET status = 'matched' WHERE id = ?`).run(match.request_id);
+    for (const hop of hops) {
+      db.prepare(`UPDATE trips SET status = 'matched' WHERE id = ?`).run(hop.trip_id);
+    }
+  });
+  acceptTransaction();
 
   // Notify carrier(s) and requester (non-fatal)
   try {
@@ -129,10 +130,10 @@ router.post('/:id/accept', (req: Request, res: Response) => {
     for (const hop of hops) {
       const carrier = db.prepare(`SELECT telegram_id, display_name FROM users WHERE id = ?`).get(hop.carrier_id) as any;
       if (carrier?.telegram_id) {
-        notifyUser(carrier.telegram_id, `📦 New delivery job! Pick up in ${hop.from_city} heading to ${hop.to_city}. Fee: ${hop.fee_ton} TON`);
+        notifyUser(carrier.telegram_id, `📦 New delivery job! Pick up in ${hop.from_city} heading to ${hop.to_city}. Fee: ${hop.fee_ton} BXC`);
       }
       if (reqUser?.telegram_id && carrier?.display_name) {
-        notifyUser(reqUser.telegram_id, `✅ ${carrier.display_name} accepted your delivery! Escrow funded with ${match.total_fee_ton} TON`);
+        notifyUser(reqUser.telegram_id, `✅ ${carrier.display_name} accepted your delivery! Escrow funded with ${match.total_fee_ton} BXC`);
       }
     }
   } catch (e) {
@@ -221,20 +222,19 @@ router.post('/:id/confirm', (req: Request, res: Response) => {
   const match = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(matchId) as any;
   if (!match) return res.status(404).json({ error: 'Match not found' });
 
-  // Update match status
-  db.prepare(`UPDATE matches SET status = 'confirmed' WHERE id = ?`).run(matchId);
-
-  // Update request status
-  db.prepare(`UPDATE requests SET status = 'confirmed' WHERE id = ?`).run(match.request_id);
-
   // Get all hops
   const hops = db.prepare(`SELECT * FROM match_hops WHERE match_id = ? ORDER BY hop_order`).all(matchId) as any[];
 
-  // Update all hops to 'confirmed' and trips to 'completed'
-  for (const hop of hops) {
-    db.prepare(`UPDATE match_hops SET status = 'confirmed' WHERE match_id = ? AND hop_order = ?`).run(matchId, hop.hop_order);
-    db.prepare(`UPDATE trips SET status = 'completed' WHERE id = ?`).run(hop.trip_id);
-  }
+  // Wrap status updates in a transaction
+  const confirmTransaction = db.transaction(() => {
+    db.prepare(`UPDATE matches SET status = 'confirmed' WHERE id = ?`).run(matchId);
+    db.prepare(`UPDATE requests SET status = 'confirmed' WHERE id = ?`).run(match.request_id);
+    for (const hop of hops) {
+      db.prepare(`UPDATE match_hops SET status = 'confirmed' WHERE match_id = ? AND hop_order = ?`).run(matchId, hop.hop_order);
+      db.prepare(`UPDATE trips SET status = 'completed' WHERE id = ?`).run(hop.trip_id);
+    }
+  });
+  confirmTransaction();
 
   // Release mock escrow
   if (match.escrow_address) {
@@ -355,7 +355,7 @@ router.post('/:id/confirm', (req: Request, res: Response) => {
     for (const hop of hops) {
       const carrier = db.prepare(`SELECT telegram_id FROM users WHERE id = ?`).get(hop.carrier_id) as any;
       if (carrier?.telegram_id) {
-        notifyUser(carrier.telegram_id, `💰 Payment released! +${hop.fee_ton} TON. Thanks for carrying!`);
+        notifyUser(carrier.telegram_id, `💰 Payment released! +${hop.fee_ton} BXC. Thanks for carrying!`);
       }
     }
   } catch (e) {

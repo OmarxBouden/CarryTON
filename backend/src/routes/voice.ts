@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import db from '../db';
 import { callLLM } from '../services/llm-provider';
 
 const router = Router();
@@ -11,7 +12,18 @@ router.post('/parse', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'transcript is required (min 3 chars)' });
   }
 
+  // Gather cities with active trips to help the LLM resolve names
+  const activeCities = db.prepare(`
+    SELECT DISTINCT from_city FROM trips WHERE status = 'active'
+    UNION
+    SELECT DISTINCT to_city FROM trips WHERE status = 'active'
+  `).all() as any[];
+  const cityList = activeCities.map((r: any) => r.from_city).join(', ');
+
   const system = `You are CarryTON's voice input parser. The user described a package delivery request by voice. Extract structured data from their speech.
+
+Cities with active carriers right now: ${cityList || 'none yet'}.
+Prefer matching to these when the user's input is close (e.g. "laus" → "Lausanne", "genève" → "Geneva"). But accept ANY city the user says — if they say a city not in the list, use it as-is. Never reject a city just because it's not in the active list.
 
 Return ONLY valid JSON with these fields:
 {

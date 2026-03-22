@@ -111,7 +111,7 @@ export function VoiceOverlay({ onResult, onClose }: VoiceOverlayProps) {
                   <span className="tag" style={{ background: 'var(--violet-bg)', color: 'var(--violet)' }}>errand</span>
                 )}
                 {parsed.budget_ton != null && (
-                  <span className="tag" style={{ background: 'var(--mint-bg)', color: 'var(--mint)' }}>{parsed.budget_ton} TON</span>
+                  <span className="tag" style={{ background: 'var(--mint-bg)', color: 'var(--mint)' }}>{parsed.budget_ton} BXC</span>
                 )}
               </div>
               {parsed.package_desc && (

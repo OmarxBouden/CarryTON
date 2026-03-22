@@ -84,7 +84,8 @@ Then open http://localhost:3000 in your browser.
 
 - Telegram Bot: @CarryTON_bot
 - Mini App: [deployed URL]
-- Testnet contract: [address]
+- Token: **Blockixchainix (BXC)** on TON testnet
+- Testnet explorer: [tonviewer.com](https://testnet.tonviewer.com)
 
 ## Monetization
 

@@ -56,7 +56,7 @@ export async function convertTonToFiat(ton_amount: number, currency: 'CHF' | 'EU
     fiat_amount,
     fiat_currency: currency,
     fiat_symbol,
-    display: `${ton_amount.toFixed(2)} TON (~${fiat_symbol} ${fiat_amount.toFixed(2)})`,
+    display: `${ton_amount.toFixed(2)} BXC (~${fiat_symbol} ${fiat_amount.toFixed(2)})`,
   };
 }
 

@@ -227,7 +227,7 @@ function TipPrompt({ matchId, carrierId, carrierName, userId, deliveryFee, onDon
         amount_ton: selectedAmount,
         ai_suggested: suggestion?.amount === selectedAmount,
       });
-      showToast(`Tipped ${selectedAmount} TON!`, 'success');
+      showToast(`Tipped ${selectedAmount} BXC!`, 'success');
       onDone(res.new_badges || []);
     } catch (err) {
       showToast((err as Error).message || 'Tip failed', 'error');
@@ -271,7 +271,7 @@ function TipPrompt({ matchId, carrierId, carrierName, userId, deliveryFee, onDon
               color: amount === preset ? '#fff' : 'var(--text-1)',
               boxShadow: amount === preset ? '0 2px 8px rgba(42,171,238,.3)' : 'none',
             }}>
-            {preset} TON
+            {preset} BXC
           </button>
         ))}
         {/* Custom input */}
@@ -300,7 +300,7 @@ function TipPrompt({ matchId, carrierId, carrierName, userId, deliveryFee, onDon
       <button onClick={handleSubmit}
         disabled={selectedAmount <= 0 || loading}
         className="w-full py-3.5 rounded-xl text-sm font-bold cursor-pointer transition-all btn-accent disabled:opacity-40">
-        {loading ? 'Sending…' : selectedAmount > 0 ? `Tip ${selectedAmount} TON` : 'Select an amount'}
+        {loading ? 'Sending…' : selectedAmount > 0 ? `Tip ${selectedAmount} BXC` : 'Select an amount'}
       </button>
     </div>
   );
@@ -386,7 +386,7 @@ export default function JobTrackerPage({ params }: { params: Promise<{ matchId: 
       });
       if (res.ok) {
         await fetchData();
-        setCelebration(`🎉 Payment released! Carrier earned ${match?.carrier_payout_ton ?? 0} TON`);
+        setCelebration(`🎉 Payment released! Carrier earned ${match?.carrier_payout_ton ?? 0} BXC`);
         setTimeout(() => setShowReview(true), 1500);
       }
     } finally {
@@ -420,7 +420,7 @@ export default function JobTrackerPage({ params }: { params: Promise<{ matchId: 
   const toCity = lastHop?.to_city ?? '—';
 
   // Determine if current user is requester or carrier
-  const isCarrier = user && hops.some((h) => h.carrier_id === (user.id as unknown as number));
+  const isCarrier = user && hops.some((h) => h.carrier_id === (Number(user.id)));
 
   // ---- Build timeline steps ----
   type StepState = 'done' | 'active' | 'pending';
@@ -500,7 +500,7 @@ export default function JobTrackerPage({ params }: { params: Promise<{ matchId: 
           <TimelineStep
             state="done"
             title="Match accepted"
-            detail={`Escrow funded: ${match.total_fee_ton} TON`}
+            detail={`Escrow funded: ${match.total_fee_ton} BXC`}
             timestamp={fmtDate(match.created_at)}
             isLast={false}
           />
@@ -596,7 +596,7 @@ export default function JobTrackerPage({ params }: { params: Promise<{ matchId: 
             matchId={matchId}
             revieweeId={hops[0].carrier_id}
             revieweeName={hops[0].carrier_name ?? 'Carrier'}
-            userId={user.id as unknown as number}
+            userId={Number(user.id)}
             onDone={(badges) => {
               setNewBadges(prev => [...prev, ...badges]);
               setReviewDone(true);
@@ -611,7 +611,7 @@ export default function JobTrackerPage({ params }: { params: Promise<{ matchId: 
             matchId={matchId}
             carrierId={hops[0].carrier_id}
             carrierName={hops[0].carrier_name ?? 'Carrier'}
-            userId={user.id as unknown as number}
+            userId={Number(user.id)}
             deliveryFee={match.total_fee_ton}
             onDone={(badges) => {
               setNewBadges(prev => [...prev, ...badges]);

@@ -71,7 +71,7 @@ function ActivityItem({ item }: { item: ActivityEntry }) {
       <div className="text-right flex-shrink-0">
         {item.amount != null && (
           <p className="text-sm font-bold" style={{ color: isCarrier ? 'var(--green)' : 'var(--text-2)' }}>
-            {isCarrier ? '+' : '-'}{item.amount} TON
+            {isCarrier ? '+' : '-'}{item.amount} BXC
           </p>
         )}
         <span className="pill text-[10px]" style={{
@@ -103,7 +103,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    const uid = user.id as unknown as number;
+    const uid = typeof user.id === 'string' ? parseInt(user.id) : user.id;
 
     getUserAvatar(uid).then(setAvatarData).catch(() => null);
 
@@ -234,7 +234,7 @@ export default function ProfilePage() {
             icon={<svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>} />
           <StatBox label="Deliveries" value={user.total_deliveries ?? 0}
             icon={<svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>} />
-          <StatBox label="TON earned" value={`${((user.total_trips ?? 0) * 3.5).toFixed(1)}`}
+          <StatBox label="BXC earned" value={`${activity.filter(a => a.role === 'Carrier' && a.amount).reduce((sum, a) => sum + (a.amount ?? 0), 0).toFixed(1)}`}
             icon={<svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 9.5l10 12.5 10-12.5L12 2zm0 3.26L18.6 9.5 12 18.08 5.4 9.5 12 5.26z" /></svg>} />
           <StatBox label="Reputation" value={`${(user.reputation ?? 0).toFixed(1)}`}
             icon={<svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>} />
@@ -269,7 +269,7 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-3">
               <TonConnectButton />
               <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-                Connect your TON wallet to send and receive payments.
+                Connect your wallet to send and receive BXC payments.
               </p>
             </div>
           )}

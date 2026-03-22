@@ -63,7 +63,7 @@ router.post('/', (req: Request, res: Response) => {
     const tipper = db.prepare(`SELECT display_name FROM users WHERE id = ?`).get(tipper_id) as any;
     const carrier = db.prepare(`SELECT telegram_id FROM users WHERE id = ?`).get(carrier_id) as any;
     if (carrier?.telegram_id) {
-      notifyUser(carrier.telegram_id, `💰 ${tipper?.display_name || 'Someone'} tipped you ${amount_ton} TON! Great job!`);
+      notifyUser(carrier.telegram_id, `💰 ${tipper?.display_name || 'Someone'} tipped you ${amount_ton} BXC! Great job!`);
     }
   } catch (e) {
     console.error('Tip notification error (non-fatal):', e);
@@ -102,7 +102,7 @@ router.post('/suggest', async (req: Request, res: Response) => {
   // Default suggestion without LLM
   const baseFee = match.total_fee_ton || 5;
   const defaultAmount = Math.round(baseFee * 0.15 * 10) / 10; // ~15% of delivery fee
-  const defaultReasoning = `A typical tip for this route is around ${defaultAmount} TON (about 15% of the delivery fee). ${carrierNames} delivered your package safely.`;
+  const defaultReasoning = `A typical tip for this route is around ${defaultAmount} BXC (about 15% of the delivery fee). ${carrierNames} delivered your package safely.`;
 
   try {
     const system = `You are CarryTON's tipping advisor. Suggest a fair tip amount for a package delivery. Be brief (2-3 sentences max). Be conversational and warm. Don't use emojis. Return ONLY valid JSON.`;
@@ -111,7 +111,7 @@ router.post('/suggest', async (req: Request, res: Response) => {
 - Route: ${route}
 - Carrier(s): ${carrierNames}
 - Carrier rating: ${avgRep.toFixed(1)}★
-- Delivery fee paid: ${match.total_fee_ton} TON
+- Delivery fee paid: ${match.total_fee_ton} BXC
 - Package: ${request?.package_size || 'standard'}, ${request?.urgency || 'normal'} priority
 - Hops: ${hops.length}
 

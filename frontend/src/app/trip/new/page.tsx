@@ -160,7 +160,7 @@ export default function NewTripPage() {
                   <input type="number" min="0" step="0.1" value={packagePrice} onChange={(e) => setPackagePrice(e.target.value)}
                     placeholder="0.00"
                     className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 pr-16 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2AABEE]" />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">TON</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">BXC</span>
                 </div>
                 <p className="text-[11px] text-gray-400 mt-1 ml-1">
                   {fiatPreview(packagePrice) || 'Leave blank — AI sets a fair price based on the route'}
@@ -214,7 +214,7 @@ export default function NewTripPage() {
                   <input type="number" min="0" step="0.1" value={seatPrice} onChange={(e) => setSeatPrice(e.target.value)}
                     placeholder="0.00"
                     className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 pr-20 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2AABEE]" />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">TON/seat</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">BXC/seat</span>
                 </div>
                 <p className="text-[11px] text-gray-400 mt-1 ml-1">
                   {fiatPreview(seatPrice) || 'Leave blank — AI sets a fair price per seat'}

@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "seed": "ts-node src/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:flow": "ts-node src/test-flow.ts"
+    "test:flow": "ts-node src/test-flow.ts",
+    "demo:prep": "ts-node src/demo-scenario.ts"
   },
   "keywords": [],
   "author": "",

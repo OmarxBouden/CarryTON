@@ -55,7 +55,7 @@ function RequestSummary({ request }: { request: DeliveryRequest }) {
         </span>
         {request.budget_ton != null && (
           <span className="rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-            Budget: {request.budget_ton} TON
+            Budget: {request.budget_ton} BXC
           </span>
         )}
         {request.urgency === 'urgent' && (
@@ -155,7 +155,7 @@ export default function MatchResultsPage({ params }: { params: Promise<{ request
     if (!user) return;
     setAccepting(true);
     try {
-      await acceptMatch(matchId, user.id as unknown as number);
+      await acceptMatch(matchId, Number(user.id));
       showToast('Match accepted!', 'success');
       setTimeout(() => router.push(`/job/${matchId}`), 1200);
     } catch (err) {
@@ -171,6 +171,7 @@ export default function MatchResultsPage({ params }: { params: Promise<{ request
         }
       } catch { /* fall through to error */ }
       showToast('Failed to accept match. Please try again.', 'error');
+    } finally {
       setAccepting(false);
     }
   }

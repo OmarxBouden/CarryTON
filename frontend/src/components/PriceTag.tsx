@@ -1,6 +1,8 @@
 'use client';
 import { useTonPrice } from '@/lib/ton-price';
 
+const TOKEN = 'BXC';
+
 interface PriceTagProps {
   amount: number;
   size?: 'sm' | 'md' | 'lg';
@@ -25,7 +27,7 @@ export function PriceTag({ amount, size = 'md', showFiat = true, currency = 'CHF
   if (inline) return (
     <span className="inline-flex items-baseline gap-1">
       <span className={s.ton} style={{ color: 'var(--text-1)' }}>
-        {amount.toFixed(2)} <span style={{ color: 'var(--blue)' }}>TON</span>
+        {amount.toFixed(2)} <span style={{ color: 'var(--accent, #2AABEE)' }}>{TOKEN}</span>
       </span>
       {showFiat && <span className={s.fiat} style={{ color: 'var(--text-3)' }}>(~{symbols[currency]}{fiat})</span>}
     </span>
@@ -34,7 +36,7 @@ export function PriceTag({ amount, size = 'md', showFiat = true, currency = 'CHF
   return (
     <span className="inline-flex flex-col items-end gap-0.5">
       <span className={`${s.ton} inline-flex items-baseline gap-1`} style={{ color: 'var(--text-1)' }}>
-        {amount.toFixed(2)} <span style={{ color: 'var(--blue)' }}>TON</span>
+        {amount.toFixed(2)} <span style={{ color: 'var(--accent, #2AABEE)' }}>{TOKEN}</span>
       </span>
       {showFiat && <span className={s.fiat} style={{ color: 'var(--text-3)' }}>~{symbols[currency]} {fiat}</span>}
     </span>
